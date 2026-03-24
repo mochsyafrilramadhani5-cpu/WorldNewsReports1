@@ -1,0 +1,294 @@
+import { useState, useEffect, useRef, useCallback } from "react";
+import { ChevronDown } from "lucide-react";
+import { f } from "./theme";
+
+// ─── Select Component with Search ───
+export function Select({ value, onChange, options, renderOption, label, theme, searchable = false }) {
+  const [open, setOpen] = useState(false);
+  const [focusIdx, setFocusIdx] = useState(-1);
+  const [query, setQuery] = useState("");
+  const ref = useRef(null);
+  const listRef = useRef(null);
+  const searchRef = useRef(null);
+  const selected = options.find(o => (o.code || o.id) === value);
+
+  // Filter options by search query
+  const filtered = searchable && query
+    ? options.filter(o => {
+        const q = query.toLowerCase();
+        const name = (o.name || "").toLowerCase();
+        const native = (o.native || "").toLowerCase();
+        const code = (o.code || o.id || "").toLowerCase();
+        return name.includes(q) || native.includes(q) || code.includes(q);
+      })
+    : options;
+
+  useEffect(() => {
+    if (!open) return;
+    const close = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
+    document.addEventListener("mousedown", close);
+    return () => document.removeEventListener("mousedown", close);
+  }, [open]);
+
+  // Reset state and focus search input when dropdown opens
+  const openDropdown = useCallback(() => {
+    setQuery("");
+    const idx = options.findIndex(o => (o.code || o.id) === value);
+    setFocusIdx(idx >= 0 ? idx : 0);
+    setOpen(true);
+    if (searchable) setTimeout(() => searchRef.current?.focus(), 0);
+  }, [options, value, searchable]);
+
+  // Scroll focused item into view
+  useEffect(() => {
+    if (!open || focusIdx < 0 || !listRef.current) return;
+    const items = listRef.current.children;
+    if (items[focusIdx]) {
+      items[focusIdx].scrollIntoView({ block: "nearest" });
+    }
+  }, [focusIdx, open]);
+
+  // Reset focus when query changes
+  useEffect(() => { setFocusIdx(0); }, [query]);
+
+  const handleKeyDown = useCallback((e) => {
+    if (!open) {
+      if (e.key === "ArrowDown" || e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        openDropdown();
+      }
+      return;
+    }
+
+    switch (e.key) {
+      case "ArrowDown":
+        e.preventDefault();
+        setFocusIdx(prev => Math.min(prev + 1, filtered.length - 1));
+        break;
+      case "ArrowUp":
+        e.preventDefault();
+        setFocusIdx(prev => Math.max(prev - 1, 0));
+        break;
+      case "Enter":
+        e.preventDefault();
+        if (focusIdx >= 0 && filtered[focusIdx]) {
+          const opt = filtered[focusIdx];
+          onChange(opt.code || opt.id);
+          setOpen(false);
+        }
+        break;
+      case "Escape":
+        e.preventDefault();
+        setOpen(false);
+        break;
+    }
+  }, [open, focusIdx, filtered, onChange, openDropdown]);
+
+  return (
+    <div ref={ref} style={{ position: "relative" }}>
+      <button
+        onClick={() => open ? setOpen(false) : openDropdown()}
+        onKeyDown={handleKeyDown}
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        aria-label={label}
+        style={{
+          display: "flex", alignItems: "center", gap: 6, padding: "7px 12px",
+          background: "transparent", border: `1px solid ${open ? theme.ink : theme.border}`,
+          cursor: "pointer", fontFamily: f.sans, fontSize: 13, fontWeight: 500,
+          color: theme.text, minWidth: 140, transition: "border-color 0.15s ease-out",
+          whiteSpace: "nowrap",
+        }}>
+        {renderOption ? renderOption(selected) : selected?.name || label}
+        <ChevronDown size={12} color={theme.dim} style={{ marginLeft: "auto",
+          transform: open ? "rotate(180deg)" : "none", transition: "transform 0.2s ease-out" }} />
+      </button>
+      {open && (
+        <div
+          role="listbox"
+          aria-label={label}
+          onKeyDown={handleKeyDown}
+          style={{
+            position: "absolute", top: "calc(100% + 2px)", left: 0, minWidth: "100%",
+            maxHeight: 380, overflowY: "auto", background: theme.card, border: `1px solid ${theme.border}`,
+            boxShadow: "0 6px 24px rgba(0,0,0,0.12)", zIndex: 50,
+          }}>
+          {searchable && (
+            <div style={{ padding: "6px 8px", position: "sticky", top: 0, background: theme.card, zIndex: 1,
+              borderBottom: `1px solid ${theme.border}` }}>
+              <input
+                ref={searchRef}
+                type="text"
+                value={query}
+                onChange={e => setQuery(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder="Search…"
+                style={{
+                  width: "100%", padding: "6px 8px", border: `1px solid ${theme.border}`,
+                  background: theme.surface, color: theme.text, fontFamily: f.sans,
+                  fontSize: 12, outline: "none",
+                }}
+              />
+            </div>
+          )}
+          <div ref={listRef}>
+            {filtered.length === 0 && (
+              <div style={{ padding: "12px", fontFamily: f.sans, fontSize: 12, color: theme.dim, textAlign: "center" }}>
+                No results
+              </div>
+            )}
+            {filtered.map((opt, i) => {
+              const active = (opt.code || opt.id) === value;
+              const focused = i === focusIdx;
+              return (
+                <button key={opt.code || opt.id}
+                  role="option"
+                  aria-selected={active}
+                  onClick={() => { onChange(opt.code || opt.id); setOpen(false); }}
+                  onMouseEnter={() => setFocusIdx(i)}
+                  style={{
+                    display: "flex", alignItems: "center", gap: 8, width: "100%",
+                    padding: "8px 12px", border: "none", textAlign: "left",
+                    background: active ? theme.surface : focused ? theme.surface : "transparent",
+                    cursor: "pointer", fontFamily: f.sans, fontSize: 13,
+                    fontWeight: active ? 600 : 400, color: active ? theme.ink : theme.text,
+                    transition: "background 0.1s ease-out",
+                  }}>
+                  {renderOption ? renderOption(opt) : opt.name}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Loading Progress ───
+const loadingMessages = [
+  "Connecting to sources…",
+  "Scanning RSS feeds…",
+  "Gathering headlines…",
+  "Ranking trending stories…",
+  "Deduplicating articles…",
+  "Almost there…",
+];
+
+export function LoadingProgress({ theme }) {
+  const [msgIdx, setMsgIdx] = useState(0);
+  const [progress, setProgress] = useState(0);
+  const [fading, setFading] = useState(false);
+
+  useEffect(() => {
+    // Animate progress bar with easing — fast at start, slows near end
+    const start = Date.now();
+    const duration = 8000; // 8s to reach ~92%
+    const tick = () => {
+      const elapsed = Date.now() - start;
+      const t = Math.min(elapsed / duration, 1);
+      // Ease-out curve: fast start, slow end, never hits 100
+      setProgress(Math.min(92, t * (2 - t) * 95));
+      if (t < 1) raf = requestAnimationFrame(tick);
+    };
+    let raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, []);
+
+  useEffect(() => {
+    // Cycle through messages with crossfade
+    const interval = setInterval(() => {
+      setFading(true);
+      setTimeout(() => {
+        setMsgIdx(i => (i + 1) % loadingMessages.length);
+        setFading(false);
+      }, 250);
+    }, 2200);
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <div style={{
+      padding: "32px 0 24px",
+      animation: "fadeIn 0.4s ease-out both",
+    }}>
+      {/* Progress bar */}
+      <div style={{
+        height: 3, borderRadius: 2,
+        background: theme.border,
+        overflow: "hidden",
+        marginBottom: 16,
+      }}>
+        <div style={{
+          height: "100%", borderRadius: 2,
+          width: `${progress}%`,
+          background: theme.accent,
+          transition: "width 0.3s ease-out",
+        }} />
+      </div>
+
+      {/* Animated status text */}
+      <div style={{
+        display: "flex", alignItems: "center", gap: 10,
+        fontFamily: f.sans, fontSize: 12, color: theme.dim,
+        letterSpacing: "0.03em",
+        textTransform: "uppercase",
+      }}>
+        {/* Spinning dot */}
+        <div style={{
+          width: 6, height: 6, borderRadius: "50%",
+          background: theme.accent,
+          animation: "pulse 1.5s ease-in-out infinite",
+        }} />
+        <span style={{
+          transition: "opacity 0.25s ease",
+          opacity: fading ? 0 : 1,
+        }}>
+          {loadingMessages[msgIdx]}
+        </span>
+      </div>
+    </div>
+  );
+}
+
+// ─── Skeleton Loader ───
+function SkeletonBar({ width, height, theme, delay = 0, borderRadius = 3 }) {
+  return (
+    <div style={{
+      height, borderRadius, width,
+      background: `linear-gradient(90deg, ${theme.skeleton} 0%, ${theme.skeleton}66 50%, ${theme.skeleton} 100%)`,
+      backgroundSize: "600px 100%",
+      animation: `shimmerSlide 2s ${delay}s ease-in-out infinite`,
+    }} />
+  );
+}
+
+export function SkeletonRows({ theme }) {
+  const rows = [1, 2, 3, 4, 5, 6];
+  return (
+    <div aria-busy="true" aria-label="Loading articles">
+      {rows.map(i => (
+        <div key={i} style={{
+          display: "flex", gap: 16, padding: "22px 0",
+          borderBottom: `1px solid ${theme.border}`,
+          animation: `fadeIn 0.4s ${(i - 1) * 0.07}s ease-out both`,
+        }}>
+          {/* Rank number */}
+          <SkeletonBar width={22} height={24} theme={theme} delay={i * 0.06} />
+          {/* Text block */}
+          <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 8 }}>
+            <SkeletonBar width={`${82 - (i * 5) % 20}%`} height={18} theme={theme} delay={i * 0.08} />
+            <SkeletonBar width={`${90 - (i * 7) % 15}%`} height={12} theme={theme} delay={i * 0.1} />
+            <SkeletonBar width={`${60 - (i * 9) % 20}%`} height={12} theme={theme} delay={i * 0.12} />
+            <div style={{ display: "flex", gap: 10, marginTop: 4 }}>
+              <SkeletonBar width={70} height={10} theme={theme} delay={i * 0.14} />
+              <SkeletonBar width={40} height={10} theme={theme} delay={i * 0.16} />
+            </div>
+          </div>
+          {/* Thumbnail placeholder */}
+          <SkeletonBar width={92} height={92} theme={theme} delay={i * 0.05} borderRadius={3} />
+        </div>
+      ))}
+    </div>
+  );
+}

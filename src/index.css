@@ -1,0 +1,229 @@
+/* ─── Self-hosted fonts (Fontshare) ─── */
+@font-face {
+  font-family: 'Gambarino';
+  src: url('/fonts/gambarino-400.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Sentient';
+  src: url('/fonts/sentient-variable.woff2') format('woff2');
+  font-weight: 200 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'General Sans';
+  src: url('/fonts/general-sans-500.woff2') format('woff2');
+  font-weight: 400 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Sentient', 'Georgia', serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: #F7F5F2;
+  color: #2A2A2A;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+::selection {
+  background: #2A2A2A;
+  color: #F7F5F2;
+}
+
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #C8C2B8;
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #9E9788;
+}
+
+/* ─── Focus-visible for keyboard navigation ─── */
+:focus-visible {
+  outline: 2px solid #7A2E2E;
+  outline-offset: 2px;
+}
+
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* ─── Shared keyframes ─── */
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.25; }
+}
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+@keyframes shimmer {
+  0% { opacity: 0.35; }
+  50% { opacity: 0.7; }
+  100% { opacity: 0.35; }
+}
+@keyframes shimmerSlide {
+  0% { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Page route transition */
+@keyframes pageIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* Intro screen element stagger */
+@keyframes introFadeUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+@keyframes introFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* Header element entrance on first load */
+@keyframes headerItemIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+
+/* ─── Reduced motion ─── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ─── Responsive: Mobile ─── */
+@media (max-width: 600px) {
+  /* Force collapsed header on mobile — no scroll animation */
+  header .header-inner {
+    padding: 10px 16px !important;
+    gap: 8px !important;
+    transition: none !important;
+  }
+
+  header .header-title {
+    font-size: 20px !important;
+    transition: none !important;
+  }
+
+  header .header-subtitle {
+    display: none !important;
+  }
+
+  header .header-globe {
+    width: 18px !important;
+    height: 18px !important;
+  }
+
+  /* Hide button text labels on small screens, keep icons */
+  .header-btn-label {
+    display: none !important;
+  }
+
+  /* Stack toolbar items vertically on narrow screens */
+  nav > div {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    padding: 10px 16px !important;
+  }
+
+  /* Make selects full-width on mobile */
+  nav > div > div:has(button[aria-haspopup]) {
+    width: 100%;
+  }
+  nav > div > div:has(button[aria-haspopup]) button {
+    width: 100% !important;
+    min-width: unset !important;
+  }
+
+  /* Content padding on mobile */
+  main,
+  .article-page-container {
+    padding: 0 16px !important;
+  }
+
+  /* Reduce article thumbnail on mobile */
+  .article-thumb {
+    width: 72px !important;
+    height: 72px !important;
+  }
+
+  /* Article content needs breathing room on mobile */
+  .article-content {
+    font-size: 16px !important;
+    line-height: 1.75 !important;
+  }
+
+  .article-content h2 { font-size: 22px !important; }
+  .article-content h3 { font-size: 19px !important; }
+  .article-content h4 { font-size: 17px !important; }
+
+  /* CTA button needs mobile padding */
+  .article-page-container a[href][target="_blank"] {
+    font-size: 13px !important;
+    padding: 14px 16px !important;
+  }
+
+  /* Grid view: collapse to single column on mobile */
+  .articles-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Hide keyboard shortcut hints on mobile */
+  .keyboard-hints {
+    display: none !important;
+  }
+}
+
+@media (min-width: 601px) and (max-width: 900px) {
+  /* Grid view: 2 columns on tablet */
+  .articles-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+
+/* ─── Article row hover ─── */
+.article-row:hover {
+  opacity: 0.7;
+}
+
+/* ─── Keyboard shortcut hints ─── */
+kbd {
+  font-family: 'General Sans', -apple-system, sans-serif;
+  border: 1px solid currentColor;
+  opacity: 0.5;
+}

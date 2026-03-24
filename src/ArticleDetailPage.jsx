@@ -151,7 +151,7 @@ function SlimHeader({ t, theme }) {
       </Link>
       <Link to="/" style={{ textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 6 }}>
         <Globe size={16} strokeWidth={1.3} color={theme.ink} />
-        <span style={{ fontFamily: f.display, fontSize: 18, color: theme.ink }}>The Atlas Report</span>
+        <span style={{ fontFamily: f.display, fontSize: 18, color: theme.ink }}>World News Reports</span>
       </Link>
     </div>
   );
@@ -562,7 +562,7 @@ export default function ArticleDetailPage() {
         <div style={{ maxWidth: 720, margin: "0 auto", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <span style={{ fontFamily: f.display, fontSize: 15, color: theme.ink, display: "flex", alignItems: "center", gap: 6 }}>
             <Globe size={14} strokeWidth={1.3} color={theme.ink} />
-            The Atlas Report
+            World News Reports
           </span>
           <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
             <a href="https://sociabuzz.com/rasyadg" target="_blank" rel="noopener noreferrer"

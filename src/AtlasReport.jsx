@@ -560,7 +560,7 @@ export default function AtlasReport({ onShowIntro }) {
                 transition: "font-size 0.25s ease-out",
                 whiteSpace: "nowrap",
               }}>
-                The Atlas Report
+                World News Reports
               </h1>
               {!headerCollapsed && (
                 <p className="header-subtitle" style={{
@@ -976,7 +976,7 @@ export default function AtlasReport({ onShowIntro }) {
         }}>
           <span style={{ fontFamily: f.display, fontSize: 15, color: theme.ink, display: "flex", alignItems: "center", gap: 6 }}>
             <Globe size={14} strokeWidth={1.3} color={theme.ink} />
-            The Atlas Report
+            World News Reports
           </span>
           <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
             <a href="https://sociabuzz.com/rasyadg" target="_blank" rel="noopener noreferrer" style={{ fontFamily: f.sans, fontSize: 10, color: theme.dim, fontWeight: 500, textDecoration: "none", transition: "color 0.15s ease-out", display: "flex", alignItems: "center", gap: 4 }} onMouseEnter={e => e.currentTarget.style.color = theme.accent} onMouseLeave={e => e.currentTarget.style.color = theme.dim}>

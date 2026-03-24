@@ -156,7 +156,7 @@ export default function IntroScreen({ onEnter }) {
           letterSpacing: "-0.03em",
           marginBottom: 18,
         }}>
-          The Atlas Report
+          World NewsReports
         </h1>
 
         {/* Tagline */}

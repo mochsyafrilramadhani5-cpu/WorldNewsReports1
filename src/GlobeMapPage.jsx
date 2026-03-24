@@ -176,7 +176,7 @@ export default function GlobeMapPage() {
               <h1 style={{
                 fontFamily: f.display, fontSize: 26, fontWeight: 400,
                 color: theme.ink, lineHeight: 1, letterSpacing: -0.4,
-              }}>The Atlas Report</h1>
+              }}>World News Reports</h1>
             </div>
 
             <span style={{

@@ -565,7 +565,7 @@ export default function ArticleDetailPage() {
             World News Reports
           </span>
           <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-            <a href="https://instagram.com/safe_rill" target="_blank" rel="noopener noreferrer"
+            <a href="https://instagram.com/@safe_rill" target="_blank" rel="noopener noreferrer"
               style={{ fontFamily: f.sans, fontSize: 10, color: theme.dim, fontWeight: 500, textDecoration: "none", transition: "color 0.15s ease-out", display: "flex", alignItems: "center", gap: 4 }}
               onMouseEnter={e => e.currentTarget.style.color = theme.accent}
               onMouseLeave={e => e.currentTarget.style.color = theme.dim}>
